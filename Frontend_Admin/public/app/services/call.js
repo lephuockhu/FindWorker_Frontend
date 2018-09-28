@@ -72,7 +72,7 @@
                 });
             };
 
-            this.DELETE = function (controller, data) {
+            this.DELETE = function (controller) {
                 $http.defaults.headers.common['Authorization'] = $cookies.get("access_token");
                 return $http({
                     method: 'DELETE',
@@ -131,6 +131,28 @@
                     else if (err.message) { lbErr = err.message }
                     else { lbErr = err }
                     return $q.reject(lbErr);
+                });
+            };
+
+            this.POSTIMAGE = function (controller, data) {
+                $http.defaults.headers.common['Authorization'] = $cookies.get("access_token");
+                // data = JSON.stringify(data);
+                return $http({
+                    method: 'POST',
+                    url: controller,
+                    transformRequest: angular.identity,
+                    headers: { 'Content-Type': undefined },
+                    data: data
+                }).then(function (result) {
+                    return $q.resolve(result.data);
+                }, function (err) {
+                    $log.info(err);
+                    lbErr = "";
+                    if (err.data.error == "invalid_grant") { lbErr = err.data.error_description }
+                    else if (err.data.error["0"].msg) { lbErr = err.data.error["0"].msg }
+                    else if (err.message) { lbErr = err.message }
+                    else { lbErr = err }
+                    func.showToastError(lbErr);
                 });
             };
         }]);

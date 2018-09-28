@@ -4,6 +4,8 @@
 	angular
 		.module('app')
 		.constant('seed', {
+			LOCALHOST: "http://18.217.245.123",
+			// LOCALHOST: "http://localhost:3000",
 			LIST_LIMIT_NUMBERS: [
 				{ id: 10, name: "10 records per page" },
 				{ id: 10, name: "20 records per page" },

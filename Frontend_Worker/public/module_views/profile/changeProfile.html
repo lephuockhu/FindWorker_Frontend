@@ -9,6 +9,17 @@
                     <div>
                         <div class="ibox-content profile-content col-lg-12">
                             <form class="form-horizontal" ng-submit="submitProfile()">
+                                <div class="form-group">
+                                    <div class="col-lg-4 col-md-offset-4">
+                                        <img alt="image" width="80%" class="img-responsive" ng-src="{{myProfile.Image}}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div>
+                                        <input type="file" class="center-block" id="Image" accept=".png, .jpg, .jpeg"
+                                            ng-model="myProfile.Image" onchange="angular.element(this).scope().changeFile()">
+                                    </div>
+                                </div>
                                 <div class="text-center m-t-lg">
                                     <div class="form-group">
                                         <label class="col-md-2 control-label">Họ và Tên:
@@ -35,7 +46,8 @@
                                                 <span datepicker class="input-group-addon">
                                                     <i class="fa fa-calendar"></i>
                                                 </span>
-                                                <input datepicker data-date-end-date="0d" type="text" tabindex="3" class="form-control" ng-model="myProfile.Birthday">
+                                                <input datepicker data-date-end-date="0d" type="text" tabindex="3"
+                                                    class="form-control" ng-model="myProfile.Birthday">
                                             </div>
                                         </div>
                                     </div>

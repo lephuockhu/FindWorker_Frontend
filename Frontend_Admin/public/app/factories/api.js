@@ -3,10 +3,10 @@
 
     angular
         .module('app')
-        .factory('api', api);
+        .factory('api', ['seed', api]);
 
-    function api() {
-        var localhost = "http://18.217.245.123";
+    function api(seed) {
+        var localhost = seed.LOCALHOST;
         var service = {
             "ACCOUNT": {
                 "LOGIN": localhost + "/api/account/login",
@@ -34,6 +34,11 @@
                 "GET_ALL_PROVINCE": localhost + "/api/location/all-province",
                 "GET_ALL_DISTRICT_BY_PROVINCEID": localhost + "/api/location/all-district-by-provinceid",
                 "GET_ALL_WARD_BY_DISTRICTID": localhost + "/api/location/all-ward-by-districtid"
+            },
+            "UPLOAD": {
+                "AVATAR": {
+                    'POST': localhost + "/api/upload/image-avatar"
+                }
             }
         };
         return service;

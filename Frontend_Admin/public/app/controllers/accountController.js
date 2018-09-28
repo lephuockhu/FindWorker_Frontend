@@ -4,8 +4,8 @@
     const app = angular.module('app');
 
     app.controller('loginController', ['$rootScope', '$scope', 'call', 'func', 'api', loginController]);
-    app.controller('profileController', ['$q', '$scope', '$routeParams', 'call', 'func', 'api', profileController]);
-    app.controller('changeProfileController', ['$q', '$rootScope', '$scope', 'call', 'func', 'api', changeProfileController]);
+    app.controller('profileController', ['$q', '$scope', '$routeParams', 'seed', 'call', 'func', 'api', profileController]);
+    app.controller('changeProfileController', ['$q', '$rootScope', '$scope', 'seed', 'call', 'func', 'api', changeProfileController]);
 
     function loginController($rootScope, $scope, call, func, api) {
         if (!func.getCookieAccessToken() && !func.getCookieAccount()) {
@@ -38,7 +38,7 @@
         }
     };
 
-    function profileController($q, $scope, $routeParams, call, func, api) {
+    function profileController($q, $scope, $routeParams, seed, call, func, api) {
         $scope.loadProfile = function () {
             try {
                 if ($routeParams.profileid > 100000000) {
@@ -47,6 +47,7 @@
                         call.GET(`${api.CV.ACTIVATED}/${$routeParams.profileid}`)])
                         .then(function (result) {
                             $scope.myProfile = result[0];
+                            $scope.myProfile.Image = `${seed.LOCALHOST}${$scope.myProfile.Image}`;
                             $scope.cvSuccess = result[1].success;
                             $scope.myCV = result[1].result;
                             $scope.cvMessage = result[1].message;
@@ -60,7 +61,7 @@
         }
     };
 
-    function changeProfileController($q, $rootScope, $scope, call, func, api) {
+    function changeProfileController($q, $rootScope, $scope, seed, call, func, api) {
         $scope.loadProfile = function () {
             try {
                 $q.all([
@@ -68,6 +69,7 @@
                     call.GET(api.LOCATION.GET_ALL_PROVINCE)
                 ]).then(function (result) {
                     $scope.myProfile = result[0];
+                    $scope.myProfile.Image = `${seed.LOCALHOST}${$scope.myProfile.Image}`;
                     $scope.provinces = result[1].result;
                     loadAllDistrictByProvinceid(result[0].ProvinceID);
                     loadAllWardByDistrictid(result[0].DistrictID);
@@ -94,14 +96,28 @@
                 if ($scope.myProfile.WardID == null) { throw "Phải chọn Phường Xã." }
                 call.PUT(api.PROFILE.UPDATE, $scope.myProfile)
                     .then(function (result) {
-                        func.showToastSuccess(result.message);
-                        window.location.href = `/#!/p/${$rootScope.info.UserAccountID}`;
+                        if (result.success) {
+                            func.showToastSuccess(result.message);
+                            func.setCookieImageFullName($scope.myProfile.FullName, $scope.myProfile.Image);
+                            $rootScope.info = func.setCookieAccount();
+                            window.location.href = `/#!/p/${$rootScope.info.UserAccountID}`;
+                        }
                     });
             } catch (err) { func.showToastError(err); }
         };
         $scope.clickCheckbox = function () { $scope.myProfile.IsMale = !$scope.myProfile.IsMale; };
         $scope.goBackHistory = function () { func.goBackHistory(); };
-
+        $scope.changeFile = function () {
+            var file = $('#Image')[0].files[0];
+            var formData = new FormData;
+            formData.append("Image", file);
+            call.POSTIMAGE(api.UPLOAD.AVATAR.POST, formData)
+                .then(function (result) {
+                    if (result.success) {
+                        $scope.myProfile.Image = `${seed.LOCALHOST}${result.result.path}`;
+                    }
+                });
+        };
         //Function
         function loadAllDistrictByProvinceid(provinceid) {
             if (provinceid > 0) {

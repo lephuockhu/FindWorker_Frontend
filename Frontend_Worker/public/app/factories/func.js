@@ -9,12 +9,12 @@
 		// Angular modules 
 		'$http', '$rootScope', '$log', '$timeout', '$location', '$cookies',
 		// Custom modules
-
+		'seed',
 		// 3rd Party Modules
 		'Flash'
 	];
 
-	function func($http, $rootScope, $log, $timeout, $location, $cookies, Flash) {
+	function func($http, $rootScope, $log, $timeout, $location, $cookies, seed, Flash) {
 		var service = {
 			configTouchspin: configTouchspin,
 			getPathLocationArray: getPathLocationArray,
@@ -29,7 +29,8 @@
 			showToastError: showToastError,
 			showSweetAlertDelete: showSweetAlertDelete,
 			goBackHistory: goBackHistory,
-			getCookieAccessToken: getCookieAccessToken
+			getCookieAccessToken: getCookieAccessToken,
+			setCookieImageFullName: setCookieImageFullName
 		};
 
 		var objConfigToastr = {
@@ -62,7 +63,7 @@
 			$cookies.putObject('account', {
 				UserAccountID: res.UserAccountID,
 				FullName: res.FullName,
-				Image: res.Image,
+				Image: `${seed.LOCALHOST}${res.Image}`,
 				NameUserType: res.NameUserType,
 				UserTypeID: res.UserTypeID
 			}, { expires: exp });
@@ -96,6 +97,20 @@
 				UserTypeID: account.UserTypeID,
 				UserAccountID: account.UserAccountID
 			};
+		};
+
+		/*
+		* Set cookie in browser 
+		*/
+		function setCookieImageFullName(FullName, Image) {
+			let account = getCookieAccount();
+			$cookies.putObject('account', {
+				FullName: FullName,
+				Image: Image,
+				NameUserType: account.NameUserType,
+				UserTypeID: account.UserTypeID,
+				UserAccountID: account.UserAccountID
+			});
 		};
 
 		/*
