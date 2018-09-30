@@ -2,9 +2,8 @@
     'use strict';
 
     const app = angular.module('app');
-
+    
     app.controller('classifyWorkersController', ['$q', '$scope', '$log', 'call', 'api', 'func', classifyWorkersController]);
-    app.controller('changeCategoryController', ['$scope', 'call', 'api', 'func', changeCategoryController]);
 
     function classifyWorkersController($q, $scope, $log, call, api, func) {
         //load data
@@ -65,75 +64,6 @@
                 call.GET(`${api.LOCATION.GET_ALL_WARD_BY_DISTRICTID}?districtid=${districtid}`)
                     .then(function (resultWard) { $scope.wards = resultWard.result; });
             } else { $scope.wards = ""; }
-        };
-    };
-
-    function changeCategoryController($scope, call, api, func) {
-        //load data when init
-        $scope.loadListCategory = function () {
-            call.GET(api.CATEGORY.GET_ALL)
-                .then(function (result) {
-                    $scope.success = result.success;
-                    if (result.success) { $scope.categories = result.result; }
-                    else { $scope.message = result.message; }
-                })
-        };
-        //EDIT CATEGORY
-        $scope.clickEditCategory = function (category) {
-            $scope.category = category;
-            angular.element("input[type='file']").val(null);
-        };
-        $scope.changeFile = function () {
-            var file = $('#Image')[0].files[0];
-            var formData = new FormData;
-            formData.append("ImageStore", file);
-            call.POSTIMAGE(api.UPLOAD.STORE.POST, formData)
-                .then(function (result) {
-                    if (result.success) {
-                        $scope.category.ImageStore = result.result.path;
-                    }
-                });
-        };
-        $scope.submitEditCategory = function () {
-            call.PUT(api.CATEGORY.UPDATE_CATEGORY, $scope.category)
-                .then(function (result) {
-                    if (result.success) {
-                        func.showToastSuccess(result.message);
-                        $('#myModal').modal('toggle');
-                    }
-                });
-        };
-        //ADD NEW CATEGORY
-        $scope.clickAddCategory = function () {
-            call.GET(api.UPLOAD.IMAGE_STORE_DEFAULT.GET)
-                .then(function (result) {
-                    $scope.categoryNew = {
-                        NameJobCategory: "",
-                        ImageStore: result.result
-                    };
-                });
-            angular.element("input[type='file']").val(null);
-        };
-        $scope.changeFileAddCategory = function () {
-            var file = $('#ImageNewCtegory')[0].files[0];
-            var formData = new FormData;
-            formData.append("ImageStore", file);
-            call.POSTIMAGE(api.UPLOAD.STORE.POST, formData)
-                .then(function (result) {
-                    if (result.success) {
-                        $scope.categoryNew.ImageStore = result.result.path;
-                    }
-                });
-        };
-        $scope.submitAddCategory = function () {
-            call.POST(api.CATEGORY.CREATE_CATEGORY, $scope.categoryNew)
-                .then(function (result) {
-                    if (result.success) {
-                        func.showToastSuccess(result.message);
-                        $scope.loadListCategory();
-                        $('#ModalAddNew').modal('toggle');
-                    }
-                });
         };
     };
 

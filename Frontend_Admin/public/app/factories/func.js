@@ -9,12 +9,12 @@
 		// Angular modules 
 		'$http', '$rootScope', '$log', '$timeout', '$location', '$cookies',
 		// Custom modules
-		'seed',
+
 		// 3rd Party Modules
 		'Flash'
 	];
 
-	function func($http, $rootScope, $log, $timeout, $location, $cookies, seed, Flash) {
+	function func($http, $rootScope, $log, $timeout, $location, $cookies, Flash) {
 		var service = {
 			configTouchspin: configTouchspin,
 			getPathLocationArray: getPathLocationArray,
@@ -63,7 +63,7 @@
 			$cookies.putObject('account', {
 				UserAccountID: res.UserAccountID,
 				FullName: res.FullName,
-				Image: `${seed.LOCALHOST}${res.Image}`,
+				Image: res.Image,
 				NameUserType: res.NameUserType,
 				UserTypeID: res.UserTypeID
 			}, { expires: exp });

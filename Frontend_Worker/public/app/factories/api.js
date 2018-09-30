@@ -3,11 +3,11 @@
 
     angular
         .module('app')
-        .factory('api', ['seed', api]);
+        .factory('api', api);
 
-    function api(seed) {
-        // var localhost = "http://18.217.245.123";
-        var localhost = seed.LOCALHOST;
+    function api() {
+        var localhost = "http://18.217.245.123";
+        // var localhost = "http://localhost:3000";
         var service = {
             "ACCOUNT": {
                 "LOGIN": localhost + "/api/account/login",

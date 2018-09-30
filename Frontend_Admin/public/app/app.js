@@ -44,6 +44,10 @@
 				controller: "classifyWorkersController",
 				templateUrl: "/module_views/admin/categories/classifyWorkers.html"
 			});
+			$routeProvider.when("/danh-muc/chinh-sua-danh-muc", {
+				controller: "changeCategoryController",
+				templateUrl: "/module_views/admin/categories/changeCategory.html"
+			});
 			//OTHER ROUTER
 			$routeProvider.otherwise({ 
 				redirectTo: "/" 

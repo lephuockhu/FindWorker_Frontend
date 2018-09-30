@@ -3,15 +3,14 @@
 
     angular
         .module('app')
-        .factory('api', ['seed', api]);
+        .factory('api', api);
 
-    function api(seed) {
-        var localhost = seed.LOCALHOST;
+    function api() {
+        var localhost = "http://18.217.245.123";
+        // var localhost = "http://localhost:3000";
         var service = {
             "ACCOUNT": {
                 "LOGIN": localhost + "/api/account/login",
-                "SIGNUP": localhost + "/api/account/signup-for-both",
-                "VERIFY": localhost + "/api/account/verify"
             },
             "PROFILE": {
                 "GET": localhost + "/api/account/profile",
@@ -21,14 +20,15 @@
                 "NOT_ACTIVATED": localhost + "/api/cv/not-activated",
                 "ACTIVE_CV": localhost + "/api/cv/active-cv",
                 "ACTIVATED": localhost + "/api/cv/activated",
-                "POST_CV": localhost + "/api/cv/post",
                 "NOT_ACTIVATED_BY_USERID": localhost + "/api/cv/not-activated-by-userid",
                 "ACTIVATED_BY_USERID": localhost + "/api/cv/activated",
                 "ACTIVATED_BY_QUERY": localhost + "/api/cv/activated-by-query"
             },
             "CATEGORY": {
                 "GET_ALL": localhost + "/api/category/get-all",
-                "GET_BY_USERWORKERID": localhost + "/api/category/get-by-userworkerid"
+                "GET_BY_USERWORKERID": localhost + "/api/category/get-by-userworkerid",
+                "CREATE_CATEGORY": localhost + "/api/category/create-category",
+                "UPDATE_CATEGORY": localhost + "/api/category/update-category"
             },
             "LOCATION": {
                 "GET_ALL_PROVINCE": localhost + "/api/location/all-province",
@@ -36,9 +36,9 @@
                 "GET_ALL_WARD_BY_DISTRICTID": localhost + "/api/location/all-ward-by-districtid"
             },
             "UPLOAD": {
-                "AVATAR": {
-                    'POST': localhost + "/api/upload/image-avatar"
-                }
+                "AVATAR": { 'POST': localhost + "/api/upload/image-avatar" },
+                "STORE": { 'POST': localhost + "/api/upload/image-store" },
+                "IMAGE_STORE_DEFAULT": { "GET": localhost + "/api/upload/image-store-default" }
             }
         };
         return service;

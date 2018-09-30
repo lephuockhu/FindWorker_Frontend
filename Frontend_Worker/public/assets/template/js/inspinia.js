@@ -51,10 +51,10 @@ $(document).ready(function () {
     });
 
     // Close menu in canvas mode
-    $('.close-canvas-menu').on('click', function () {
-        $("body").toggleClass("mini-navbar");
-        SmoothlyMenu();
-    });
+    // $('.close-canvas-menu').on('click', function () {
+    //     $("body").toggleClass("mini-navbar");
+    //     SmoothlyMenu();
+    // });
 
     // Run menu of canvas
     $('body.canvas-menu .sidebar-collapse').slimScroll({

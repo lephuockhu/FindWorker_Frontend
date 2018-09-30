@@ -53,6 +53,11 @@
 				controller: "changeProfileController",
 				templateUrl: "/module_views/profile/changeProfile.html"
 			});
+			//CATEGORY
+			$routeProvider.when("/danh-muc/phan-loai-tho", {
+				controller: "classifyWorkersController",
+				templateUrl: "/module_views/worker/categories/classifyWorkers.html"
+			});
 			//OTHER ROUTER
 			$routeProvider.otherwise({ 
 				redirectTo: "/" 

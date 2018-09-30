@@ -93,7 +93,7 @@
         $scope.clickEditCV = function (cv) {
             $scope.optionsVariable = func.configTouchspin();
             $scope.cv = cv;
-        }
+        };
 
         $scope.submitEditCV = function () {
             try {
@@ -111,7 +111,7 @@
             } catch (err) {
                 func.showToastError(err);
             }
-        }
+        };
     };
 
     function cvActivatedByUseridController($scope, $log, call, api, func) {

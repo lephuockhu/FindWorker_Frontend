@@ -6,8 +6,8 @@
     app.controller('loginController', ['$rootScope', '$scope', 'call', 'func', 'api', loginController]);
     app.controller('signupController', ['$scope', 'call', 'func', 'api', signupController]);
     app.controller('verifyController', ['$scope', '$routeParams', 'call', 'api', verifyController]);
-    app.controller('profileController', ['$q', '$scope', '$routeParams', 'seed', 'call', 'func', 'api', profileController]);
-    app.controller('changeProfileController', ['$q', '$rootScope', '$scope', 'seed', 'call', 'func', 'api', changeProfileController]);
+    app.controller('profileController', ['$q', '$scope', '$routeParams', 'call', 'func', 'api', profileController]);
+    app.controller('changeProfileController', ['$q', '$rootScope', '$scope', 'call', 'func', 'api', changeProfileController]);
 
     var objValue = {};
 
@@ -96,7 +96,7 @@
         }
     };
 
-    function profileController($q, $scope, $routeParams, seed, call, func, api) {
+    function profileController($q, $scope, $routeParams, call, func, api) {
         $scope.loadProfile = function () {
             try {
                 if ($routeParams.profileid > 100000000) {
@@ -105,7 +105,6 @@
                         call.GET(`${api.CV.ACTIVATED}/${$routeParams.profileid}`)])
                         .then(function (result) {
                             $scope.myProfile = result[0];
-                            $scope.myProfile.Image = `${seed.LOCALHOST}${$scope.myProfile.Image}`;
                             $scope.cvSuccess = result[1].success;
                             $scope.myCV = result[1].result;
                             $scope.cvMessage = result[1].message;
@@ -119,7 +118,7 @@
         }
     };
 
-    function changeProfileController($q, $rootScope, $scope, seed, call, func, api) {
+    function changeProfileController($q, $rootScope, $scope, call, func, api) {
         $scope.loadProfile = function () {
             try {
                 $q.all([
@@ -127,7 +126,6 @@
                     call.GET(api.LOCATION.GET_ALL_PROVINCE)
                 ]).then(function (result) {
                     $scope.myProfile = result[0];
-                    $scope.myProfile.Image = `${seed.LOCALHOST}${$scope.myProfile.Image}`;
                     $scope.provinces = result[1].result;
                     loadAllDistrictByProvinceid(result[0].ProvinceID);
                     loadAllWardByDistrictid(result[0].DistrictID);
@@ -172,7 +170,7 @@
             call.POSTIMAGE(api.UPLOAD.AVATAR.POST, formData)
                 .then(function (result) {
                     if (result.success) {
-                        $scope.myProfile.Image = `${seed.LOCALHOST}${result.result.path}`;
+                        $scope.myProfile.Image = result.result.path;
                     }
                 });
         };
