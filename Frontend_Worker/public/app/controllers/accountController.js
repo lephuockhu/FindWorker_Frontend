@@ -115,7 +115,22 @@
             } catch (err) {
                 func.showToastError(err);
             }
-        }
+        };
+        $scope.clickCreateRoomChat = function () {
+            try {
+                if ($routeParams.profileid > 100000000) {
+                    let valueObj = { "ToUserID": $routeParams.profileid };
+                    call.POST(api.CHAT.POST_ROOM_CHAT, valueObj)
+                        .then(function () {
+                            window.location.href = "/chat";
+                        });
+                } else {
+                    throw "ID bị sai";
+                }
+            } catch (err) {
+                func.showToastError(err);
+            }
+        };
     };
 
     function changeProfileController($q, $rootScope, $scope, call, func, api) {

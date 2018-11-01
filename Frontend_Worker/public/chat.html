@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Chat</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="messaging">
+      <div class="inbox_msg">
+        <div class="inbox_people">
+          <div class="headind_srch">
+            <h4 class="text-center">Tin nhắn</h4>
+          </div>
+          <div class="inbox_chat" id="list_chat"></div>
+        </div>
+        <div class="mesgs">
+          <div class="headind_srch">
+            <div class="col-md-5">
+              <div class="chat_img_title"> <img class="img_width40px" id="img_message"> </div>
+              <h4 id="name_message" class="align-middle">Chọn người gởi</h4>
+            </div>
+            <div class="col-md-7 text-right">
+              <button type="button" class="btn btn-default" id="cancelTransaction" disabled="true">Hủy giao dịch</button>
+              <button type="button" class="btn btn-success" id="doneTransaction" disabled="true">Giao dịch hoàn tất</button>
+            </div>
+          </div>
+          <div class="msg_history" id="message_history"></div>
+
+          <div class="type_msg">
+            <div class="input_msg_write">
+              <input type="text" class="write_msg" id="text_msg" placeholder="Nhập tin nhắn..." disabled="true" />
+              <button class="msg_send_btn" id="send_msg" disabled="true" type="submit">Gửi</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="http://localhost:4000/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      var socket = io.connect('http://localhost:4000/', {
+        reconnect: true
+      });
+      var historyIDSelected = "";//ID của history vừa chọn
+      // var localhost = "http://18.217.245.123";
+      var localhost = "http://localhost:3000";
+      var api = {
+        get_list_people_chated: localhost + "/api/chat/get-list-people-chated",
+        get_message_chated: localhost + "/api/chat/get-message-chated"
+      };
+      var seed = { limit: 10, page: 1 };
+      //Config Toastr
+      var objConfigToastr = {
+        "closeButton": true,
+        "debug": false,
+        "progressBar": true,
+        "preventDuplicates": false,
+        "positionClass": "toast-bottom-right",
+        "onclick": null,
+        "showDuration": "400",
+        "hideDuration": "1000",
+        "timeOut": "7000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+      };
+      //call api
+      function ajaxGet(url) {
+        return new Promise(function (resolve, reject) {
+          let cookieToken = $.cookie('access_token');
+          $.ajax({
+            type: 'GET',
+            url: url,
+            headers: {
+              "authorization": cookieToken,
+              'Content-Type': 'application/json'
+            }
+          }).then(function (result) {
+            return resolve(result);
+          }).catch(function (err) {
+            handError(err);
+          });
+        });
+      };
+      //Helper
+      /*
+      * Display Error on screen
+      */
+      function showToastError(contentName) {
+        toastr.error(contentName, "Lỗi", objConfigToastr);
+      };
+      function showToastWarning(contentName) {
+        toastr.warning(contentName, "Cảnh báo", objConfigToastr);
+      };
+      /**
+      * Hand error
+      */
+      function handError(err) {
+        let lbErr = "";
+        if (err.responseJSON.error == "invalid_grant") { lbErr = err.responseJSON.error_description }
+        else if (err.responseJSON.error["0"].msg) { lbErr = err.responseJSON.error["0"].msg }
+        else if (err.message) { lbErr = err.message }
+        else { lbErr = err }
+        showToastError(lbErr);
+      };
+      /**
+      * Function Render View
+      * @param {object} container Parent you want display
+      * @param {array} items A array you want render
+      */
+      function renderListPeople(container, items) {
+        var htmlItems = items.map(function (item) {
+          return `
+            <div class="chat_list" historyid="${item.HistoryID}" image="${item.Image}" fullname="${item.FullName}">
+              <div class="chat_people">
+                <div class="chat_img"> <img src="${item.Image}" alt="${item.FullName}"> </div>
+                <div class="chat_ib">
+                  <h5>${item.FullName}</h5>
+                  <h6 class="chat_date">Ngày tạo: ${item.DateCreate}</h6>
+                </div>
+              </div>
+            </div>
+            `;
+        });
+        var html = htmlItems.join('');
+        container.html(html);
+      };
+      /**
+      * Function Render View
+      * @param {string} message Message You sended
+      * @param {number} time Time Send
+      */
+      function htmlSendMessAppend(message, time) {
+        let today = new Date(Number(time));
+        let dDate = today.getDate();
+        let dMonth = today.getMonth() + 1;
+        let dHour = today.getHours();
+        let dMinute = today.getMinutes();
+
+        return `<div class="outgoing_msg">
+              <div class="sent_msg">
+                <p>${message}</p>
+                <span class="time_date text-right"> ${dHour}:${dMinute} | ${dDate}/${dMonth}</span>
+              </div>
+            </div>`;
+      };
+      /**
+      * Function Render View
+      * @param {string} message Message You received
+      * @param {number} time Time Send
+      */
+      function htmlReceivedMessAppend(message, time) {
+        let today = new Date(Number(time));
+        let dDate = today.getDate();
+        let dMonth = today.getMonth() + 1;
+        let dHour = today.getHours();
+        let dMinute = today.getMinutes();
+
+        return `<div class="incoming_msg">
+              <div class="received_msg">
+                <div class="received_withd_msg">
+                  <p>${message}</p>
+                  <span class="time_date"> ${dHour}:${dMinute} | ${dDate}/${dMonth}</span>
+                </div>
+              </div>
+            </div>`;
+      };
+
+      //Load page done
+      ajaxGet(api.get_list_people_chated).then(function (result) {
+        if (result.success) {
+          let storeHistoryID = [];
+          //render ra giao diện
+          renderListPeople($("#list_chat"), result.result);
+          //Add historyid vào mảng để thực hiện lệnh join
+          result.result.map(function (value) { storeHistoryID.push(value.HistoryID); });
+          //Gởi list room để join vào
+          socket.emit('array_room', storeHistoryID);
+        }
+        else { $("#list_chat").html(`<h3>${result.message}</h3>`) }
+      });
+      //Event click a People
+      $('#list_chat').on('click', '.chat_list', function () {
+        //empty message
+        $('#message_history').html('');
+        historyIDSelected = $(this).attr("historyid");
+        // let image = $(this).attr("image");
+        $("#img_message").attr("src", $(this).attr("image"));
+        $("#name_message").text($(this).attr("fullname"));
+        ajaxGet(`${api.get_message_chated}?historyid=${historyIDSelected}&limit=${seed.limit}&page=${seed.page}`).then(function (result) {
+          if (result.success) {
+            for (let i = 0; i < result.result.length; i++) {
+              //Kiểm tra userid trong get và userid trong cookie có giống nhau không để phân biệt người gởi người nhận.
+              if (result.result[i].UserID == JSON.parse($.cookie('').account).UserAccountID) {
+                $('#message_history').append(htmlSendMessAppend(result.result[i].MessageDetail, result.result[i].TimeComment));
+                $('#message_history').scrollTop($('#message_history')[0].scrollHeight);
+              } else {
+                $('#message_history').append(htmlReceivedMessAppend(result.result[i].MessageDetail, result.result[i].TimeComment));
+                $('#message_history').scrollTop($('#message_history')[0].scrollHeight);
+              }
+            }
+          } else { showToastWarning(result.message); }
+        });
+        //Change color listchat selected
+        $(this).css("background-color", "");
+        //Enable input and button send
+        $("#text_msg").attr('disabled', false);
+        $("#send_msg").attr('disabled', false);
+        $("#cancelTransaction").attr('disabled', false);
+        $("#doneTransaction").attr('disabled', false);
+      });
+      //Event click send mess
+      $('#send_msg').click(function () {
+        if ($('#text_msg').val().length > 0) {
+          let times = new Date();
+          let messDetail = {
+            HistoryID: historyIDSelected,
+            MessageDetail: $('#text_msg').val(),
+            TimeComment: times.getTime()
+          };
+          //
+          $('#message_history').append(htmlSendMessAppend(messDetail.MessageDetail, messDetail.TimeComment));
+          $('#message_history').scrollTop($('#message_history')[0].scrollHeight);
+          $('#text_msg').val("");
+          //SOCKET EMIT NEW MESS
+          socket.emit('send_message', messDetail);
+        } else { showToastError("Phải nhập tin nhắn để gửi."); }
+      });
+      //event when user press enter key
+      $('#text_msg').keypress(function (e) {
+        if (e.which == 13) {//Enter key pressed
+          $('#send_msg').click();//Trigger search button click event
+        }
+      });
+
+      //SOCKET
+      //Emit
+      socket.on('get_message', function (result) {
+        if (historyIDSelected == result.HistoryID) {
+          $('#message_history').append(htmlReceivedMessAppend(result.MessageDetail, result.TimeComment));
+          $('#message_history').scrollTop($('#message_history')[0].scrollHeight);
+        } else {
+          $(`#list_chat div[historyid="${result.HistoryID}"]`).css("background-color", "#5fb95478");
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
