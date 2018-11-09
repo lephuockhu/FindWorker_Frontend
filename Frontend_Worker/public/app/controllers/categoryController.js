@@ -2,10 +2,17 @@
     'use strict';
 
     const app = angular.module('app');
-    
-    app.controller('classifyWorkersController', ['$q', '$scope', '$log', 'call', 'api', 'func', classifyWorkersController]);
 
-    function classifyWorkersController($q, $scope, $log, call, api, func) {
+    app.controller('classifyWorkersController', ['$q', '$scope', '$log', 'call', 'api', 'func', 'NgMap', classifyWorkersController]);
+
+    function classifyWorkersController($q, $scope, $log, call, api, func, NgMap) {
+        NgMap.getMap().then(function (map) { $scope.map = map; });
+
+        $scope.showDetail = function (e, userCategory) {
+            $scope.userCategory = userCategory;
+            $scope.map.showInfoWindow('infor', this);
+        };
+
         //load data
         $scope.loadListCategory = function () {
             try {
@@ -35,7 +42,22 @@
         };
         $scope.loadWorkerWard = function () {
             loadListWorkerActivated($scope.selectedCategory, $scope.selectedProvince, $scope.selectedDistrict, $scope.selectedWard);
-        }
+        };
+        $scope.clickCreateRoomChat = function (UserID) {
+            try {
+                if (UserID > 100000000) {
+                    let valueObj = { "ToUserID": UserID };
+                    call.POST(api.CHAT.POST_ROOM_CHAT, valueObj)
+                        .then(function () {
+                            window.location.href = "/chat";
+                        });
+                } else {
+                    throw "ID bị sai";
+                }
+            } catch (err) {
+                func.showToastError(err);
+            }
+        };
 
         //FUNCTION
         function loadListWorkerActivated(CategoryID, ProvinceID, DistrictID, WardID) {
@@ -45,7 +67,7 @@
                         $scope.success = result.success;
                         $scope.userCategories = result.result;
                         $scope.message = result.message;
-                    })
+                    });
             } catch (err) {
                 $log.error(err);
                 func.showToastError(err);

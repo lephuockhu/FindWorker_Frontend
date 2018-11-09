@@ -5,6 +5,7 @@
   <title>Chat</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="/style.css">
 </head>
 
@@ -25,8 +26,10 @@
               <h4 id="name_message" class="align-middle">Chọn người gởi</h4>
             </div>
             <div class="col-md-7 text-right">
-              <button type="button" class="btn btn-default" id="cancelTransaction" disabled="true">Hủy giao dịch</button>
-              <button type="button" class="btn btn-success" id="doneTransaction" disabled="true">Giao dịch hoàn tất</button>
+              <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalCancelTransaction"
+                id="btnCancelTransaction" disabled="true">Hủy giao dịch</button>
+              <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalDoneTransaction" id="btnDoneTransaction"
+                disabled="true">Giao dịch hoàn tất</button>
             </div>
           </div>
           <div class="msg_history" id="message_history"></div>
@@ -42,21 +45,64 @@
       </div>
     </div>
   </div>
+
+  <div class="modal fade" id="modalCancelTransaction" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h3 class="modal-title text-center">Bạn có muốn hủy giao dịch?</h3>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-info" data-dismiss="modal">Đóng</button>
+          <button type="button" class="btn btn-default" id="submitCancelTransaction">Hủy giao dịch</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalDoneTransaction" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h3 class="modal-title text-center">Hoàn thành giao dịch</h3>
+        </div>
+        <div class="modal-body">
+          <h4>Đánh giá cho giao dịch:</h4>
+          <div class="text-center">
+            <div class="more-stars" style="font-size:27px"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+          <button type="button" class="btn btn-success" id="submitDoneTransaction">Đánh giá giao dịch</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="http://localhost:4000/socket.io/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <script src="/stars.min.js"></script>
   <script>
     $(document).ready(function () {
       var socket = io.connect('http://localhost:4000/', {
         reconnect: true
       });
       var historyIDSelected = "";//ID của history vừa chọn
+      var startValue = 9;
       // var localhost = "http://18.217.245.123";
       var localhost = "http://localhost:3000";
       var api = {
         get_list_people_chated: localhost + "/api/chat/get-list-people-chated",
-        get_message_chated: localhost + "/api/chat/get-message-chated"
+        get_message_chated: localhost + "/api/chat/get-message-chated",
+        put_cancel_transaction: localhost + "/api/chat/put-cancel-transaction",
+        put_done_transaction: localhost + "/api/chat/put-done-transaction"
       };
       var seed = { limit: 10, page: 1 };
       //Config Toastr
@@ -94,10 +140,40 @@
           });
         });
       };
+      function ajaxPut(url, data) {
+        return new Promise(function (resolve, reject) {
+          let cookieToken = $.cookie('access_token');
+          $.ajax({
+            type: 'PUT',
+            url: url,
+            data: JSON.stringify(data),
+            headers: {
+              "authorization": cookieToken,
+              'Content-Type': 'application/json'
+            }
+          }).then(function (result) {
+            return resolve(result);
+          }).catch(function (err) {
+            handError(err);
+          });
+        });
+      };
+      //Config Rate stars
+      $(".more-stars").stars({
+        stars: 10,
+        value: startValue,
+        text: ["1 sao", "2 sao", "3 sao", "4 sao", "5 sao", "6 sao", "7 sao", "8 sao", "9 sao", "10 sao"],
+        click: function (i) {
+          startValue = i;
+        }
+      });
       //Helper
       /*
       * Display Error on screen
       */
+      function showToastSuccess(contentName) {
+        toastr.success(contentName, "Thành công", objConfigToastr);
+      };
       function showToastError(contentName) {
         toastr.error(contentName, "Lỗi", objConfigToastr);
       };
@@ -189,7 +265,7 @@
           //Gởi list room để join vào
           socket.emit('array_room', storeHistoryID);
         }
-        else { $("#list_chat").html(`<h3>${result.message}</h3>`) }
+        else { $("#list_chat").html(`<h3 class="text-center">${result.message}</h3>`) }
       });
       //Event click a People
       $('#list_chat').on('click', '.chat_list', function () {
@@ -218,8 +294,8 @@
         //Enable input and button send
         $("#text_msg").attr('disabled', false);
         $("#send_msg").attr('disabled', false);
-        $("#cancelTransaction").attr('disabled', false);
-        $("#doneTransaction").attr('disabled', false);
+        $("#btnCancelTransaction").attr('disabled', false);
+        $("#btnDoneTransaction").attr('disabled', false);
       });
       //Event click send mess
       $('#send_msg').click(function () {
@@ -244,9 +320,41 @@
           $('#send_msg').click();//Trigger search button click event
         }
       });
+      //Cancel a transaction
+      $('#submitCancelTransaction').on('click', function () {
+        let objectValue = {
+          HistoryID: historyIDSelected
+        }
+        ajaxPut(api.put_cancel_transaction, objectValue).then(function (result) {
+          if (result.success) {
+            socket.emit('leave_room', historyIDSelected);//Rời phòng
+            showToastSuccess(result.message);
+            $('#modalCancelTransaction').modal('hide');
+            window.location.reload(false);
+          }
+          else { showToastError(result.message); }
+        });
+      });
+      //Done and rating a transaction
+      $('#submitDoneTransaction').on('click', function () {
+        let objectValue = {
+          HistoryID: historyIDSelected,
+          Points: startValue
+        }
+        ajaxPut(api.put_done_transaction, objectValue).then(function (result) {
+          if (result.success) {
+            socket.emit('points_rate', objectValue);//Gởi tin nhắn đánh giá
+            showToastSuccess(result.message);
+            $('#modalDoneTransaction').modal('hide');
+          }
+          else { showToastError(result.message); }
+        });
+      });
 
       //SOCKET
       //Emit
+      socket.emit('authorization', $.cookie('access_token'));
+      //
       socket.on('get_message', function (result) {
         if (historyIDSelected == result.HistoryID) {
           $('#message_history').append(htmlReceivedMessAppend(result.MessageDetail, result.TimeComment));

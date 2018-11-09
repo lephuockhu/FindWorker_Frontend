@@ -37,7 +37,8 @@
                 "GET_ALL_WARD_BY_DISTRICTID": localhost + "/api/location/all-ward-by-districtid"
             },
             "CHAT": {
-                "POST_ROOM_CHAT": localhost + "/api/chat/create-chat-history"
+                "POST_ROOM_CHAT": localhost + "/api/chat/create-chat-history",
+                "GET_INFO_TRANSACTION_DONE_BY_USERID": localhost + "/api/chat/get-info-transaction-done-by-userid"
             },
             "UPLOAD": {
                 "AVATAR": {

@@ -8,8 +8,11 @@
 		// Custom modules
 
 		// 3rd Party Modules
-		'ngCookies', 'ngFlash', 'nk.touchspin'
+		'ngCookies', 'ngFlash', 'nk.touchspin', 'ngMap'
 	])
+		.run(['$rootScope', 'seed', function ($rootScope, seed) {
+			$rootScope.seed = seed;
+		}])
 		.config(["$routeProvider", "$locationProvider", function ($routeProvider, $locationProvider) {
 			//LOGIN
 			$routeProvider.when("/tai-khoan/dang-nhap", {
@@ -49,8 +52,8 @@
 				templateUrl: "/module_views/admin/categories/changeCategory.html"
 			});
 			//OTHER ROUTER
-			$routeProvider.otherwise({ 
-				redirectTo: "/" 
+			$routeProvider.otherwise({
+				redirectTo: "/"
 				// templateUrl: "/module_views/error404.html"
 			});
 		}]);

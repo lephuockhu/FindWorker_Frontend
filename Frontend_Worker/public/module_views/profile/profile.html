@@ -22,7 +22,7 @@
                                 <p><i class="fa fa-map-marker"></i> <span ng-bind="(myProfile.PlaceName)+', '+(myProfile.StreetName)"></span></p>
                                 <p><i class="fa fa-birthday-cake"> Ngày sinh:</i><span ng-bind="myProfile.Birthday"></span></p>
                                 <h5><i class="fa fa-calendar"></i> Ngày tham gia vào hệ thống: <b ng-bind="myProfile.CreateDate"></b></h5>
-                                <p><i class="fa fa-check"></i> Điểm đánh giá: <b ng-bind="myProfile.PointsAverage"></b></p>
+                                <p><i class="fa fa-check"></i> Điểm đánh giá: <b><span ng-bind="myProfile.PointsAverage"></span>/10</b>, tổng người đánh giá: <b ng-bind="myProfile.CountPeopleRated"></b></p>
                                 <div class="user-button">
                                     <div class="row">
                                         <div class="col-lg-12" ng-if="$root.info.UserAccountID==myProfile.UserAccountID">
@@ -32,8 +32,9 @@
                                             </a>
                                         </div>
                                         <div class="col-lg-12" ng-if="$root.info.UserAccountID!=myProfile.UserAccountID">
-                                            <button type="button" class="btn btn-primary btn-sm btn-block" ng-click="clickCreateRoomChat()"><i class="fa fa-comments-o"></i>
-                                                Gởi tin nhắn</button>
+                                            <button type="button" class="btn btn-primary btn-sm btn-block" ng-click="clickCreateRoomChat()"><i
+                                                    class="fa fa-comments-o"></i>
+                                                Gửi tin nhắn</button>
                                         </div>
                                     </div>
                                 </div>
@@ -43,39 +44,72 @@
                 </div>
             </div>
             <div class="col-md-8">
-                <div class="ibox-title">
-                    <h2 class="text-center">Danh sách hồ sơ</h2>
-                </div>
-                <div class="ibox-content forum-container" ng-switch="cvSuccess">
-                    <div ng-switch-when=true>
-                        <div class="forum-item" ng-repeat="cv in myCV">
+                <div style="margin-bottom: 10px">
+                    <div class="ibox-title">
+                        <h2 class="text-center">Lịch sử đã giao dịch</h2>
+                    </div>
+                    <div class="ibox-content forum-container">
+                        <div ng-if="transactionSuccess==true">
                             <div class="row">
-                                <div class="col-md-10">
+                            <div ng-repeat="transaction in myTransaction">
+                                <div class="col-md-6" style="margin-bottom:10px">
                                     <div class="forum-icon text-primary">
-                                        <h1 ng-bind="$index"></h1>
+                                        <img alt="image" ng-src="{{transaction.Image}}" style="width:50px">
                                     </div>
-                                    <h3 class="forum-item-title text-info" ng-bind="cv.NameJobCategory"></h3>
-                                    <div class="forum-sub-title">
-                                        <b>Trình độ chuyên môn:</b>
-                                        {{cv.Qualifications}}.<br>
-                                        <b>Thông tin chung:</b>
-                                        {{cv.GeneralInformation}}.<br>
-                                        <i>Ngày tạo tài khoản:
-                                            {{cv.DateCreateAccount}} - Ngày nạp hồ sơ:
-                                            {{cv.DateCreateCV}}.</i>
-                                    </div>
-                                </div>
-                                <div class="col-md-2 forum-info">
-                                    <span class="views-number" ng-bind="cv.Exprience"></span>
-                                    <div>
-                                        <small>Năm kinh ngiệm</small>
+                                    <div class="">
+                                        <a class="client-link forum-item-title text-info" ng-bind="transaction.FullName"
+                                            ng-href="/#!/p/{{transaction.UserAccountID}}" target="_blank"></a>
+                                        <div class="forum-sub-title">
+                                            <b>Điểm người này đã đánh giá:</b>
+                                            {{transaction.Points}}.<br>
+                                            <b>Ngày kết thúc đánh giá:</b>
+                                            {{transaction.DateEnd}}.
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        </div>
+                        <div ng-if="transactionSuccess==false">
+                            <h3 class="text-center" ng-bind="transactionMessage"></h3>
+                        </div>
                     </div>
-                    <div ng-switch-when=false>
-                        <h3 class="text-center" ng-bind="cvMessage"></h3>
+                </div>
+                <div>
+                    <div class="ibox-title">
+                        <h2 class="text-center">Danh sách hồ sơ</h2>
+                    </div>
+                    <div class="ibox-content forum-container" ng-switch="cvSuccess">
+                        <div ng-switch-when=true>
+                            <div class="forum-item" ng-repeat="cv in myCV">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <div class="forum-icon text-primary">
+                                            <h1 ng-bind="$index"></h1>
+                                        </div>
+                                        <h3 class="forum-item-title text-info" ng-bind="cv.NameJobCategory"></h3>
+                                        <div class="forum-sub-title">
+                                            <b>Trình độ chuyên môn:</b>
+                                            {{cv.Qualifications}}.<br>
+                                            <b>Thông tin chung:</b>
+                                            {{cv.GeneralInformation}}.<br>
+                                            <i>Ngày tạo tài khoản:
+                                                {{cv.DateCreateAccount}} - Ngày nạp hồ sơ:
+                                                {{cv.DateCreateCV}}.</i>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 forum-info">
+                                        <span class="views-number" ng-bind="cv.Exprience"></span>
+                                        <div>
+                                            <small>Năm kinh ngiệm</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-switch-when=false>
+                            <h3 class="text-center" ng-bind="cvMessage"></h3>
+                        </div>
                     </div>
                 </div>
             </div>

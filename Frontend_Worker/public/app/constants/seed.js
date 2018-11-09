@@ -6,21 +6,11 @@
 		.constant('seed', {
 			LOCALHOST: "http://18.217.245.123",
 			// LOCALHOST: "http://localhost:3000",
-			LIST_LIMIT_NUMBERS: [
-				{ id: 10, name: "10 records per page" },
-				{ id: 10, name: "20 records per page" },
-				{ id: 10, name: "30 records per page" },
-				{ id: 10, name: "40 records per page" },
-				{ id: 10, name: "50 records per page" }
-			],
-			GENDERS: [
-				{ id: 0, name: "Female" },
-				{ id: 1, name: "Male" },
-				{ id: 2, name: "Other" }
-			],
-			CREATE_NAME: "Create",
-			UPDATE_NAME: "Update",
-			DELETE_NAME: "Delete"
+			LIMIT: 10,
+			PAGE: 1,
+			GEOLOCATION: { LAT: 10.9555, LONG: 106.8014, ZOOM: 13 },
+			KEY_ID_GOOGLE_MAPS: "AIzaSyAZsYFGOWjueUxBA2us0nRjQ6cOqyJHmHg",
+			GOOGLE_MAPS_URL: "https://maps.googleapis.com/maps/api/js?key=AIzaSyAZsYFGOWjueUxBA2us0nRjQ6cOqyJHmHg"
 		});
 
 })();

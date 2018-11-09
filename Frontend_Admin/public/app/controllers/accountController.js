@@ -4,7 +4,7 @@
     const app = angular.module('app');
 
     app.controller('loginController', ['$rootScope', '$scope', 'call', 'func', 'api', loginController]);
-    app.controller('profileController', ['$q', '$scope', '$routeParams', 'call', 'func', 'api', profileController]);
+    app.controller('profileController', ['$scope', '$routeParams', 'call', 'func', 'api', 'seed', profileController]);
     app.controller('changeProfileController', ['$q', '$rootScope', '$scope', 'call', 'func', 'api', changeProfileController]);
 
     function loginController($rootScope, $scope, call, func, api) {
@@ -38,19 +38,23 @@
         }
     };
 
-    function profileController($q, $scope, $routeParams, call, func, api) {
+    function profileController($scope, $routeParams, call, func, api, seed) {
         $scope.loadProfile = function () {
             try {
                 if ($routeParams.profileid > 100000000) {
-                    $q.all([
-                        call.GET(`${api.PROFILE.GET}/${$routeParams.profileid}`),
-                        call.GET(`${api.CV.ACTIVATED}/${$routeParams.profileid}`)])
-                        .then(function (result) {
-                            $scope.myProfile = result[0];
-                            $scope.cvSuccess = result[1].success;
-                            $scope.myCV = result[1].result;
-                            $scope.cvMessage = result[1].message;
-                        });
+                    call.GET(`${api.PROFILE.GET}/${$routeParams.profileid}`).then(function (result) {
+                        $scope.myProfile = result;
+                    });
+                    call.GET(`${api.CV.ACTIVATED}/${$routeParams.profileid}`).then(function (result) {
+                        $scope.cvSuccess = result.success;
+                        $scope.myCV = result.result;
+                        $scope.cvMessage = result.message;
+                    });
+                    call.GET(`${api.CHAT.GET_INFO_TRANSACTION_DONE_BY_USERID}?useraccountid=${$routeParams.profileid}&limit=${seed.LIMIT}&page=${seed.PAGE}`).then(function (result) {
+                        $scope.transactionSuccess = result.success;
+                        $scope.myTransaction = result.result;
+                        $scope.transactionMessage = result.message;
+                    });
                 } else {
                     throw "Đường dẫn bị sai";
                 }

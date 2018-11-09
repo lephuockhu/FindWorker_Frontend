@@ -3,10 +3,16 @@
 
     const app = angular.module('app');
 
-    app.controller('classifyWorkersController', ['$q', '$scope', '$log', 'call', 'api', 'func', classifyWorkersController]);
+    app.controller('classifyWorkersController', ['$q', '$scope', '$log', 'call', 'api', 'func', 'NgMap', classifyWorkersController]);
     app.controller('changeCategoryController', ['$scope', 'call', 'api', 'func', changeCategoryController]);
 
-    function classifyWorkersController($q, $scope, $log, call, api, func) {
+    function classifyWorkersController($q, $scope, $log, call, api, func, NgMap) {
+        NgMap.getMap().then(function (map) { $scope.map = map; });
+
+        $scope.showDetail = function (e, userCategory) {
+            $scope.userCategory = userCategory;
+            $scope.map.showInfoWindow('infor', this);
+        };
         //load data
         $scope.loadListCategory = function () {
             try {
